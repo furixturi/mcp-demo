@@ -16,3 +16,7 @@ async def fetch_weather(city: str) -> str:
     async with httpx.AsyncClient() as client:
         response = await client.get(f"https://api.weather.com/{city}")
         return response.text
+    
+if __name__ == "__main__":
+    # Start the server
+    mcp.run()
