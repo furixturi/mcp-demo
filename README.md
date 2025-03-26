@@ -6,6 +6,7 @@ References
 Helpful community resources
 - [Pamela Fox's live coding MCP session](https://www.youtube.com/watch?v=BXeCntNh6Mg)
 - [Philipp Schmid's blog](https://www.philschmid.de/mcp-example-llama)
+- [MCP in Production YouTube Video by Coding Crash Courses](https://www.youtube.com/watch?v=KRw4vVX9aHU) 
 
 ## MCP server sample
 Notes of some hiccups running Anthropic's server sample:
@@ -35,8 +36,8 @@ In the MCP world, however, the concept of them shifted. The general idea I got f
 
 To draw a comparison to the web application world:
 - `MCP host` is your client application, with an LLM that can intelligently manage user interaction and server interaction to some extent so that you don't need to program every single logic
-- `MCP client`s are your microservices (or their interfaces open to the client application), it holds logic to connect to external services (tools and resources)
-- `MCP server`s are each microservices' backends (database, external API, complex business logics, long running tasks or heavy computation)
+- `MCP client`s are the modules your application holds to connect to multiple microservices
+- `MCP server`s are each microservice's backend. They might be a collection of tools, or connected to a database, a file system, an external API, or other services.
 
 If you follow Anthropic's example with Claude Desktop, things might get more confusing. Claud Desktop basically act as all of the three: 
 - First, it is a `host` application with a chat UI and access to the Claude LLM
@@ -44,3 +45,19 @@ If you follow Anthropic's example with Claude Desktop, things might get more con
 - Thirdly, once you installed your MCP server (either by running `mcp install server.py` or adding your MCP server in Claude Desktop's Developer config), and restart, Claude Desktop will also run the servers locally (or in a Docker, depending on your configuration) for you.
 
 ### Production Readiness
+
+#### Local
+
+When installing my MCP server with Claude Desktop, I had to use an absolute path to my server app file. 
+
+After that I've rename the file, moved it to another folder. With Claude Desktop still open, it could still use the tool but showed "local" in brackets. Then I restarted Claud Desktop, now it showed "failed" in the Developer Settings and asking about BMI no longer uses the tool.
+
+So, Claude Desktop keeps a local cache of the MCP server while it is open, and every restart the cache will be flushed and Claude Desktop will try to reload the MCP server file from disk and run it. 
+
+This is extremely fragile and I guess the production ready way of shipping a MCP local server is to package it in a container and instead of letting Claude Desktop or other MCP clients run the server app file directly, instruct them to run the MCP server in a Docker container.
+
+#### Remote
+
+The MCP specification defined two Transport mechanisms: `stdio` and `sse` (server-sent event, for streaming over HTTP). 
+
+All the MCP server and client samples I've found are for local use only. Remote connections with authorization is still draft in the MCP protocol but Cloudflare has some docs about remote MCP servers.
